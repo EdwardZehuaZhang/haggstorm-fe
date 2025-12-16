@@ -6,16 +6,15 @@ import {
   Zap, 
   Moon, 
   Star, 
-  ShoppingCart, 
   Lightbulb, 
   LightbulbOff, 
   Menu, 
   Truck, 
-  Heart,
   X
 } from 'lucide-react';
 import ParticleSystem from '@/components/ParticleSystem';
 import FeatureCard from '@/components/FeatureCard';
+import Footer from '@/components/Footer';
 
 /**
  * VoxelLight - Next.js Landing Page
@@ -37,7 +36,11 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a] text-white font-sans selection:bg-orange-500 selection:text-white overflow-x-hidden relative">
+    <div 
+      className={`min-h-screen text-white font-sans selection:bg-orange-500 selection:text-white overflow-x-hidden relative transition-colors duration-700 ${
+        isLightOn ? 'bg-[#1a1a1a]' : 'bg-[#78A7FF]'
+      }`}
+    >
       <ParticleSystem />
       
       {/* Navigation */}
@@ -59,9 +62,12 @@ export default function Home() {
             <a href="#features" className="hover:text-orange-400 transition-colors">FEATURES</a>
             <a href="#gallery" className="hover:text-orange-400 transition-colors">GALLERY</a>
             <a href="#specs" className="hover:text-orange-400 transition-colors">SPECS</a>
-            <button className="bg-orange-500 hover:bg-orange-600 text-black px-6 py-2 font-pixel text-xl mc-btn transition-transform active:scale-95">
+            <a
+              href="/detail"
+              className="bg-orange-500 hover:bg-orange-600 text-black px-6 py-2 font-pixel text-xl mc-btn transition-transform active:scale-95"
+            >
               BUY NOW
-            </button>
+            </a>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -79,9 +85,12 @@ export default function Home() {
             <a href="#features" onClick={() => setIsMobileMenuOpen(false)} className="text-xl hover:text-orange-400">FEATURES</a>
             <a href="#gallery" onClick={() => setIsMobileMenuOpen(false)} className="text-xl hover:text-orange-400">GALLERY</a>
             <a href="#specs" onClick={() => setIsMobileMenuOpen(false)} className="text-xl hover:text-orange-400">SPECS</a>
-            <button className="bg-orange-500 text-black w-full py-4 font-pixel text-2xl mc-btn">
+            <a
+              href="/detail"
+              className="bg-orange-500 text-black w-full py-4 font-pixel text-2xl mc-btn text-center"
+            >
               BUY NOW
-            </button>
+            </a>
           </div>
         )}
       </nav>
@@ -104,9 +113,11 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="bg-orange-500 hover:bg-orange-600 text-black px-8 py-4 font-pixel text-2xl mc-btn flex items-center justify-center gap-3 transition-transform active:scale-95">
-                <ShoppingCart className="w-5 h-5" />
-                $29.99
+              <button 
+                onClick={() => window.location.href = '/detail'}
+                className="bg-orange-500 hover:bg-orange-600 text-black px-8 py-4 font-pixel text-2xl mc-btn flex items-center justify-center gap-3 transition-transform active:scale-95"
+              >
+                BUY NOW
               </button>
               <button 
                 onClick={() => setIsLightOn(!isLightOn)}
@@ -125,23 +136,26 @@ export default function Home() {
 
           {/* Product Visualization */}
           <div className="relative flex justify-center items-center h-[500px]">
-            {/* Decorative Rings */}
-            <div className="absolute w-[300px] h-[300px] md:w-[400px] md:h-[400px] rounded-full border border-orange-500/20 animate-spin-slow"></div>
-            <div className="absolute w-[220px] h-[220px] md:w-[300px] md:h-[300px] rounded-full border border-white/10 animate-spin-reverse"></div>
-            
             {/* The Fox Image */}
             <div 
-              className={`relative z-10 transition-all duration-700 animate-float cursor-pointer`}
+              className={`relative z-10 transition-all duration-700 animate-float cursor-pointer group`}
               onClick={() => setIsLightOn(!isLightOn)}
             >
               <img 
                 src={isLightOn ? "/Foxlight_light.png" : "/Foxlight_dark.png"}
                 alt="Minecraft Fox Light" 
                 className={`
-                  w-80 md:w-96 object-contain relative z-20 transition-all duration-700
+                  w-96 md:w-[500px] object-contain relative z-20 transition-all duration-700
                   ${isLightOn ? 'filter drop-shadow-[0_0_30px_#ff8e25]' : ''}
                 `}
               />
+              
+              {/* Tap Me Text */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                <span className="font-pixel text-3xl text-white bg-black/70 px-6 py-3 border-4 border-white" style={{ boxShadow: '4px 4px 0 0 rgba(0,0,0,0.5)' }}>
+                  [TAP ME]
+                </span>
+              </div>
               
               {/* Floor Reflection Glow */}
               <div 
@@ -245,40 +259,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 bg-[#0a0a0c] pt-16 pb-8">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
-            <div className="col-span-2">
-              <div className="flex items-center gap-2 mb-6">
-                <Box className="text-orange-500 w-6 h-6" />
-                <span className="font-pixel text-2xl text-white">VOXEL<span className="text-orange-500">LIGHT</span></span>
-              </div>
-              <p className="text-gray-500 max-w-sm text-sm leading-relaxed">
-                Bringing the blocky world into your reality, one pixel at a time. Not affiliated with Mojang or Microsoft.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-6">Shop</h4>
-              <ul className="space-y-4 text-gray-500 text-sm">
-                <li><a href="#" className="hover:text-orange-500 transition-colors">All Products</a></li>
-                <li><a href="#" className="hover:text-orange-500 transition-colors">New Arrivals</a></li>
-                <li><a href="#" className="hover:text-orange-500 transition-colors">Accessories</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-6">Support</h4>
-              <ul className="space-y-4 text-gray-500 text-sm">
-                <li><a href="#" className="hover:text-orange-500 transition-colors">FAQ</a></li>
-                <li><a href="#" className="hover:text-orange-500 transition-colors">Shipping</a></li>
-                <li><a href="#" className="hover:text-orange-500 transition-colors">Contact Us</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-white/5 pt-8 text-center text-gray-600 text-xs">
-            &copy; 2024 VoxelLight. Designed with <Heart className="inline w-3 h-3 text-red-500 mx-1" /> for gamers.
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
