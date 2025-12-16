@@ -37,7 +37,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0f0f13] text-white font-sans selection:bg-orange-500 selection:text-white overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#1a1a1a] text-white font-sans selection:bg-orange-500 selection:text-white overflow-x-hidden relative">
       <ParticleSystem />
       
       {/* Navigation */}
@@ -88,19 +88,10 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-        {/* Background Gradients */}
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-orange-900/20 to-transparent pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#0f0f13] to-transparent pointer-events-none z-10"></div>
-
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-20">
           
           {/* Text Content */}
           <div className="space-y-8 animate-fade-up" style={{ animationDelay: '0.2s' }}>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-orange-500/30 bg-orange-500/10 text-orange-400 text-xs tracking-wider font-bold uppercase">
-              <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
-              Best Seller
-            </div>
-            
             <h1 className="text-6xl md:text-8xl leading-none font-pixel text-white">
               SLEEPING <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500">
@@ -144,16 +135,12 @@ export default function Home() {
               onClick={() => setIsLightOn(!isLightOn)}
             >
               <img 
-                src="https://images.unsplash.com/photo-1627464096076-2d11979b9e59?q=80&w=800&auto=format&fit=crop" 
+                src={isLightOn ? "/Foxlight_light.png" : "/Foxlight_dark.png"}
                 alt="Minecraft Fox Light" 
                 className={`
-                  w-80 md:w-96 object-contain relative z-20 rounded-xl transition-all duration-700
-                  ${isLightOn ? 'filter drop-shadow-[0_0_30px_#ff8e25] brightness-110' : 'filter brightness-75'}
+                  w-80 md:w-96 object-contain relative z-20 transition-all duration-700
+                  ${isLightOn ? 'filter drop-shadow-[0_0_30px_#ff8e25]' : ''}
                 `}
-                style={{ 
-                  maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
-                  WebkitMaskImage: 'linear-gradient(to bottom, black 90%, transparent 100%)'
-                }}
               />
               
               {/* Floor Reflection Glow */}
@@ -234,18 +221,23 @@ export default function Home() {
           <h2 className="text-5xl md:text-7xl font-pixel mb-8 text-white">READY TO LIGHT UP?</h2>
           <p className="text-xl text-gray-300 mb-10 font-light">Limited stock available. Don&apos;t let this little guy despawn.</p>
           
-          <div className="bg-gray-900 border border-gray-700 p-8 rounded-2xl shadow-2xl transform rotate-1 hover:rotate-0 transition-transform duration-300">
+          <div 
+            className="bg-[#2a2a2a] border-4 border-[#1a1a1a] p-8 shadow-2xl hover:translate-y-[-2px] transition-transform duration-200"
+            style={{
+              boxShadow: 'inset -6px -6px 0px 0px rgba(0,0,0,0.6), inset 6px 6px 0px 0px rgba(255,255,255,0.1), 0 8px 0 0 #000'
+            }}
+          >
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="text-left">
-                <div className="text-sm text-gray-400 mb-1">Total</div>
+                <div className="text-sm text-gray-400 mb-1 font-pixel">Total</div>
                 <div className="text-4xl font-pixel text-white">$29.99</div>
               </div>
-              <div className="h-12 w-[1px] bg-gray-700 hidden md:block"></div>
-              <button className="w-full md:w-auto bg-orange-500 hover:bg-orange-600 text-black px-12 py-4 font-pixel text-2xl mc-btn rounded-lg transition-transform active:scale-95">
+              <div className="h-12 w-[2px] bg-black hidden md:block"></div>
+              <button className="w-full md:w-auto bg-orange-500 hover:bg-orange-600 text-black px-12 py-4 font-pixel text-2xl mc-btn transition-transform active:scale-95 border-4 border-orange-700">
                 ADD TO CART
               </button>
             </div>
-            <div className="mt-4 flex items-center gap-2 text-xs text-gray-500 justify-center md:justify-start">
+            <div className="mt-4 flex items-center gap-2 text-xs text-gray-400 justify-center md:justify-start font-pixel">
               <Truck className="w-4 h-4" /> Free shipping on orders over $50
             </div>
           </div>

@@ -39,12 +39,15 @@ const FeatureCard = ({ icon, title, description, color }: FeatureCardProps) => {
     <div 
       ref={ref}
       className={`
-        bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-2xl 
-        hover:bg-white/10 transition-all duration-500 group hover:-translate-y-2
+        bg-[#2a2a2a] border-4 border-[#1a1a1a] p-8 mc-btn relative
+        hover:bg-[#333333] transition-all duration-200 group hover:-translate-y-1
         transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}
       `}
+      style={{
+        boxShadow: 'inset -4px -4px 0px 0px rgba(0,0,0,0.5), inset 4px 4px 0px 0px rgba(255,255,255,0.1)'
+      }}
     >
-      <div className={`${colorClasses[color]} w-16 h-16 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300`}>
+      <div className={`${colorClasses[color]} w-16 h-16 border-4 border-black/30 flex items-center justify-center mb-6 transition-colors duration-300`}>
         <span className="group-hover:text-black transition-colors duration-300">
           {icon}
         </span>
