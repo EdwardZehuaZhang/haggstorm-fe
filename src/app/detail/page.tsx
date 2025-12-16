@@ -1,98 +1,9 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { getProductById, createCart } from "@/lib/shopify";
-
-// --- Particle System (same vibe as home) ---
-const ParticleSystem = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const createParticle = () => {
-      const particle = document.createElement("div");
-      const size = Math.random() * 6 + 2;
-      const duration = Math.random() * 3 + 4;
-      const startLeft = Math.random() * 100;
-
-      const colors = ["#ff8e25", "#ffb347", "#ffffff"];
-      const color = colors[Math.floor(Math.random() * colors.length)];
-
-      particle.style.cssText = `
-        position: absolute;
-        width: ${size}px;
-        height: ${size}px;
-        background-color: ${color};
-        left: ${startLeft}vw;
-        bottom: -20px;
-        border-radius: 50%;
-        pointer-events: none;
-        opacity: 0;
-        animation: particle-rise ${duration}s linear forwards;
-        filter: drop-shadow(0 0 6px rgba(255,142,37,0.35));
-      `;
-
-      container.appendChild(particle);
-
-      setTimeout(() => {
-        if (container.contains(particle)) container.removeChild(particle);
-      }, duration * 1000);
-    };
-
-    const intervalId = setInterval(createParticle, 400);
-    return () => clearInterval(intervalId);
-  }, []);
-
-  return (
-    <div
-      ref={containerRef}
-      className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
-      aria-hidden="true"
-    />
-  );
-};
-
-// --- Global Styles & Fonts (same as home) ---
-const GlobalStyles = () => (
-  <style>{`
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=VT323&display=swap');
-
-    .font-sans { font-family: 'Inter', sans-serif; }
-    .font-pixel { font-family: 'VT323', monospace; }
-
-    @keyframes particle-rise {
-      0% { transform: translateY(0) scale(0); opacity: 0; }
-      20% { opacity: 0.6; }
-      100% { transform: translateY(-100vh) scale(1); opacity: 0; }
-    }
-
-    @keyframes float {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-12px); }
-      100% { transform: translateY(0px); }
-    }
-    .animate-float { animation: float 6s ease-in-out infinite; }
-
-    /* Minecraft Button Style */
-    .mc-btn {
-      box-shadow: inset -4px -4px 0px 0px rgba(0,0,0,0.55);
-    }
-    .mc-btn:active {
-      box-shadow: inset 4px 4px 0px 0px rgba(0,0,0,0.55);
-      transform: translateY(1px);
-    }
-
-    /* Hide number input arrows (nice for qty) */
-    input[type=number]::-webkit-outer-spin-button,
-    input[type=number]::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-    input[type=number] { -moz-appearance: textfield; }
-  `}</style>
-);
+import ParticleSystem from "@/components/ParticleSystem";
+import Footer from "@/components/Footer";
 
 // --- Tiny helpers ---
 const colorClasses: Record<string, string> = {
@@ -103,14 +14,14 @@ const colorClasses: Record<string, string> = {
 
 const MCButton = ({ children, className = "", variant = "primary", ...props }: any) => {
   const base =
-    "mc-btn font-pixel text-xl px-5 py-3 rounded-xl transition-all duration-200 select-none";
+    "mc-btn font-pixel text-xl px-5 py-3 rounded-none border-4 transition-all duration-200 select-none";
   const variants: Record<string, string> = {
     primary:
-      "bg-orange-500 text-black hover:bg-orange-400 border border-black/40 hover:-translate-y-0.5",
+      "bg-orange-500 text-black hover:bg-orange-400 border-orange-700 hover:-translate-y-0.5",
     ghost:
-      "bg-white/5 text-white hover:bg-white/10 border border-white/15 hover:-translate-y-0.5",
+      "bg-[#2a2a2a] text-white hover:bg-[#333333] border-[#1a1a1a] hover:-translate-y-0.5",
     dark:
-      "bg-black/40 text-white hover:bg-black/55 border border-white/10 hover:-translate-y-0.5",
+      "bg-[#1a1a1a] text-white hover:bg-black/80 border-[#1a1a1a] hover:-translate-y-0.5",
   };
   return (
     <button className={`${base} ${variants[variant]} ${className}`} {...props}>
@@ -120,8 +31,8 @@ const MCButton = ({ children, className = "", variant = "primary", ...props }: a
 };
 
 const Pill = ({ children }: { children: React.ReactNode }) => (
-  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200 text-sm">
-    <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-[#2a2a2a] border-4 border-[#1a1a1a] text-gray-200 text-sm">
+    <span className="w-2 h-2 bg-orange-400" />
     {children}
   </span>
 );
@@ -141,12 +52,12 @@ const Section = ({ title, subtitle, children }: any) => (
 const InfoCard = ({ icon, title, desc, color = "orange" }: any) => (
   <div
     className={`
-      bg-white/5 backdrop-blur-sm border border-white/10 p-6 rounded-2xl 
-      hover:bg-white/10 transition-all duration-500 group hover:-translate-y-1
+      bg-[#2a2a2a] border-4 border-[#1a1a1a] p-6 rounded-none 
+      transition-all duration-200 group hover:-translate-y-1 mc-btn
     `}
   >
     <div
-      className={`${colorClasses[color]} w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-colors duration-300`}
+      className={`${colorClasses[color]} w-14 h-14 rounded-none border-4 border-black/30 flex items-center justify-center mb-4 transition-colors duration-300`}
     >
       <span className="group-hover:text-black transition-colors duration-300">{icon}</span>
     </div>
@@ -318,9 +229,9 @@ export default function ProductDetailPage() {
 
   const mockImage = (img: any) => {
     const base =
-      "relative w-full h-full rounded-2xl border border-white/10 overflow-hidden bg-white/5 backdrop-blur-sm group";
+      "relative w-full h-full rounded-none border-4 border-[#1a1a1a] overflow-hidden bg-[#2a2a2a] group";
     const badge =
-      "absolute top-4 left-4 px-3 py-1 rounded-full bg-black/40 border border-white/10 text-gray-200 text-sm z-20";
+      "absolute top-4 left-4 px-3 py-1 rounded-none bg-[#2a2a2a] border-4 border-[#1a1a1a] text-gray-200 text-sm z-20";
     const grid =
       "absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,0.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.6)_1px,transparent_1px)] [background-size:24px_24px] z-10 pointer-events-none";
 
@@ -355,7 +266,6 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen font-sans relative bg-[#0f0f13]">
-      <GlobalStyles />
       <ParticleSystem />
 
       {/* Background glow */}
@@ -372,7 +282,7 @@ export default function ProductDetailPage() {
         {/* Top bar */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-none bg-[#2a2a2a] border-4 border-[#1a1a1a] flex items-center justify-center">
               <span className="font-pixel text-2xl text-orange-400">■</span>
             </div>
             <div>
@@ -404,13 +314,13 @@ export default function ProductDetailPage() {
                     key={img.id}
                     onClick={() => setSelectedImage(img)}
                     className={`
-                      aspect-square rounded-2xl border transition-all duration-300 overflow-hidden relative
-                      ${active ? "border-orange-400/70 bg-white/10" : "border-white/10 bg-white/5 hover:bg-white/10"}
+                      aspect-square rounded-none border-4 transition-all duration-300 overflow-hidden relative
+                      ${active ? "border-orange-700 bg-[#2a2a2a]" : "border-[#1a1a1a] bg-[#2a2a2a] hover:bg-[#333333]"}
                     `}
                     aria-label={`Select ${img.label}`}
                   >
                     <div className="w-full h-full p-2">
-                      <div className="w-full h-full rounded-xl overflow-hidden relative">
+                      <div className="w-full h-full rounded-none overflow-hidden relative">
                          <img 
                             src={img.url} 
                             alt={img.label}
@@ -428,8 +338,8 @@ export default function ProductDetailPage() {
           {/* Buy box */}
           <div
             className="
-              bg-white/5 backdrop-blur-sm border border-white/10 p-8 rounded-2xl
-              hover:bg-white/10 transition-all duration-500
+              bg-[#2a2a2a] border-4 border-[#1a1a1a] p-8 rounded-none
+              transition-all duration-200 mc-btn
             "
           >
             <div className="flex flex-wrap items-center gap-2">
@@ -453,7 +363,7 @@ export default function ProductDetailPage() {
             <div className="mt-6 flex items-end gap-3">
               <div className="font-pixel text-5xl text-white">${product.price}</div>
               <div className="text-gray-500 line-through mb-2">${product.compareAt}</div>
-              <div className="mb-2 px-3 py-1 rounded-full bg-orange-500/15 border border-orange-400/20 text-orange-300 text-sm">
+              <div className="mb-2 px-3 py-1 rounded-none bg-orange-500/20 border-4 border-orange-700 text-orange-300 text-sm">
                 Save ${(product.compareAt - product.price).toFixed(2)}
               </div>
             </div>
@@ -468,9 +378,9 @@ export default function ProductDetailPage() {
             </ul>
 
             <div className="mt-7 flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-black/30 border border-white/10 rounded-2xl p-2">
+              <div className="flex items-center gap-2 bg-[#2a2a2a] border-4 border-[#1a1a1a] rounded-none p-2">
                 <button
-                  className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white"
+                  className="w-10 h-10 rounded-none bg-[#333333] hover:bg-[#444444] border-4 border-[#1a1a1a] text-white"
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
                   aria-label="Decrease quantity"
                 >
@@ -484,7 +394,7 @@ export default function ProductDetailPage() {
                   className="w-16 text-center bg-transparent text-white outline-none font-pixel text-2xl"
                 />
                 <button
-                  className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white"
+                  className="w-10 h-10 rounded-none bg-[#333333] hover:bg-[#444444] border-4 border-[#1a1a1a] text-white"
                   onClick={() => setQty((q) => q + 1)}
                   aria-label="Increase quantity"
                 >
@@ -522,7 +432,7 @@ export default function ProductDetailPage() {
               {product.highlights.map((h) => (
                 <div
                   key={h.k}
-                  className="rounded-2xl bg-black/30 border border-white/10 p-4"
+                  className="rounded-none bg-[#2a2a2a] border-4 border-[#1a1a1a] p-4"
                 >
                   <div className="text-gray-400 text-sm">{h.k}</div>
                   <div className="text-white font-medium">{h.v}</div>
@@ -561,8 +471,8 @@ export default function ProductDetailPage() {
 
         {/* Specs */}
         <Section title="Specs" subtitle="Technical details for the nerds.">
-          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden">
-            <div className="divide-y divide-white/10">
+          <div className="rounded-none border-4 border-[#1a1a1a] bg-[#2a2a2a] overflow-hidden">
+            <div className="divide-y divide-[#1a1a1a]">
               {product.specs.map((s) => (
                 <div key={s.k} className="grid grid-cols-1 md:grid-cols-4 gap-3 p-5">
                   <div className="text-gray-300 font-medium md:col-span-1">{s.k}</div>
@@ -580,8 +490,8 @@ export default function ProductDetailPage() {
               <div
                 key={idx}
                 className="
-                  bg-white/5 backdrop-blur-sm border border-white/10 p-6 rounded-2xl
-                  hover:bg-white/10 transition-all duration-500
+                  bg-[#2a2a2a] border-4 border-[#1a1a1a] p-6 rounded-none
+                  transition-all duration-200 mc-btn
                 "
               >
                 <div className="flex items-center justify-between gap-4">
@@ -604,8 +514,8 @@ export default function ProductDetailPage() {
                   key={i}
                   onClick={() => setOpenFAQ(open ? -1 : i)}
                   className="
-                    w-full text-left rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm
-                    hover:bg-white/10 transition-all duration-300 p-5
+                    w-full text-left rounded-none border-4 border-[#1a1a1a] bg-[#2a2a2a]
+                    transition-all duration-200 p-5 mc-btn
                   "
                 >
                   <div className="flex items-center justify-between gap-4">
@@ -634,12 +544,12 @@ export default function ProductDetailPage() {
               <div
                 key={p.name}
                 className="
-                  bg-white/5 backdrop-blur-sm border border-white/10 p-6 rounded-2xl
-                  hover:bg-white/10 transition-all duration-500 group hover:-translate-y-1
+                  bg-[#2a2a2a] border-4 border-[#1a1a1a] p-6 rounded-none
+                  transition-all duration-200 group hover:-translate-y-1 mc-btn
                 "
               >
                 <div
-                  className={`${colorClasses[p.tint]} w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-colors duration-300`}
+                  className={`${colorClasses[p.tint]} w-14 h-14 rounded-none border-4 border-black/30 flex items-center justify-center mb-4 transition-colors duration-300`}
                 >
                   <span className="group-hover:text-black transition-colors duration-300 font-pixel text-3xl">
                     ▣
@@ -662,10 +572,9 @@ export default function ProductDetailPage() {
         </Section>
 
         {/* Footer */}
-        <footer className="mt-14 pb-6 text-center text-gray-500">
-          <div className="font-pixel text-2xl text-white">VOXELLIGHT</div>
-          <div className="mt-2">Bringing the blocky world into your reality.</div>
-        </footer>
+        <div className="mt-14">
+          <Footer />
+        </div>
       </div>
     </div>
   );

@@ -16,7 +16,7 @@ const ParticleSystem = () => {
 
     const createParticle = () => {
       const particle = document.createElement('div');
-      const size = Math.random() * 6 + 2;
+      const size = Math.random() * 12 + 8; // Larger particles (8-20px)
       const duration = Math.random() * 3 + 4; // Slower rise for chill vibes
       const startLeft = Math.random() * 100;
       
@@ -30,10 +30,10 @@ const ParticleSystem = () => {
         background-color: ${color};
         left: ${startLeft}vw;
         bottom: -20px;
-        border-radius: 50%;
         pointer-events: none;
         opacity: 0;
         animation: particle-rise ${duration}s linear forwards;
+        border-radius: 0;
       `;
 
       container.appendChild(particle);
