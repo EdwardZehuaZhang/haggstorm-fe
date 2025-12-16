@@ -217,6 +217,25 @@ export default function ProductDetailPage() {
       const sPrice = shopifyProduct?.variants?.edges[0]?.node?.price?.amount;
       const sCompare = shopifyProduct?.variants?.edges[0]?.node?.compareAtPrice?.amount;
       
+      // Dynamic Images from Shopify
+      let images = [];
+      if (shopifyProduct?.images?.edges?.length > 0) {
+        images = shopifyProduct.images.edges.map((edge: any, i: number) => ({
+          id: `shopify-img-${i}`,
+          label: edge.node.altText || `View ${i + 1}`,
+          kind: "shopify", // Generic kind for Shopify images
+          url: edge.node.url,
+        }));
+      } else {
+        // Fallback images if Shopify has none (or while loading)
+        images = [
+          { id: "img1", label: "Front View", kind: "fox-front", url: "https://images.unsplash.com/photo-1627464096076-2d11979b9e59?q=80&w=800&auto=format&fit=crop" },
+          { id: "img2", label: "Side Glow", kind: "fox-side", url: "https://images.unsplash.com/photo-1627464096076-2d11979b9e59?q=80&w=800&auto=format&fit=crop" },
+          { id: "img3", label: "In Scene", kind: "fox-scene", url: "https://images.unsplash.com/photo-1627464096076-2d11979b9e59?q=80&w=800&auto=format&fit=crop" },
+          { id: "img4", label: "Night Mode", kind: "fox-night", url: "https://images.unsplash.com/photo-1627464096076-2d11979b9e59?q=80&w=800&auto=format&fit=crop" },
+        ];
+      }
+      
       return {
         name: shopifyProduct?.title || "Sleeping Fox Light",
         tagline: shopifyProduct?.description || "Illuminate your biome with the coziest mob in the game.",
@@ -236,12 +255,7 @@ export default function ProductDetailPage() {
           { k: "Light Source", v: "Warm LED" },
           { k: "Dimensions", v: "16cm Width" },
         ],
-        images: [
-          { id: "img1", label: "Front View", kind: "fox-front" },
-          { id: "img2", label: "Side Glow", kind: "fox-side" },
-          { id: "img3", label: "In Scene", kind: "fox-scene" },
-          { id: "img4", label: "Night Mode", kind: "fox-night" },
-        ],
+        images,
         specs: [
           { k: "In the Box", v: "1x Sleeping Fox Light, User Manual" },
           { k: "Battery Life", v: "Up to 120 hours of continuous use" },
@@ -291,10 +305,18 @@ export default function ProductDetailPage() {
   );
 
   const [selectedImage, setSelectedImage] = useState(product.images[0]);
+  
+  // Update selected image when product images change (e.g. after fetch)
+  useEffect(() => {
+    if (product.images.length > 0) {
+      setSelectedImage(product.images[0]);
+    }
+  }, [product.images]);
+
   const [qty, setQty] = useState(1);
   const [openFAQ, setOpenFAQ] = useState(0);
 
-  const mockImage = (kind: string) => {
+  const mockImage = (img: any) => {
     const base =
       "relative w-full h-full rounded-2xl border border-white/10 overflow-hidden bg-white/5 backdrop-blur-sm group";
     const badge =
@@ -302,27 +324,27 @@ export default function ProductDetailPage() {
     const grid =
       "absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,0.6)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.6)_1px,transparent_1px)] [background-size:24px_24px] z-10 pointer-events-none";
 
-    // Use the actual image from the homepage if available or placeholders
-    const imageUrl = "https://images.unsplash.com/photo-1627464096076-2d11979b9e59?q=80&w=800&auto=format&fit=crop";
+    // Use the image URL from the object
+    const imageUrl = img.url;
 
+    // Only apply filters to fallback images (optional, based on 'kind')
     let filter = "";
-    if (kind === "fox-front") filter = "brightness-110";
-    if (kind === "fox-side") filter = "hue-rotate-15 brightness-105";
-    if (kind === "fox-scene") filter = "sepia-0 brightness-100";
-    if (kind === "fox-night") filter = "brightness-75 contrast-125 drop-shadow-[0_0_20px_rgba(255,142,37,0.5)]";
-
+    if (img.kind === "fox-front") filter = "brightness-110";
+    if (img.kind === "fox-side") filter = "hue-rotate-15 brightness-105";
+    if (img.kind === "fox-scene") filter = "sepia-0 brightness-100";
+    if (img.kind === "fox-night") filter = "brightness-75 contrast-125 drop-shadow-[0_0_20px_rgba(255,142,37,0.5)]";
 
     return (
       <div className={base}>
         <div className={grid} />
          <img 
             src={imageUrl} 
-            alt="Sleeping Fox Light" 
+            alt={img.label || "Product Image"}
             className={`w-full h-full object-cover transition-all duration-500 ${filter}`}
           />
         
         {/* Overlay for specific variants if needed */}
-        {kind === "fox-night" && (
+        {img.kind === "fox-night" && (
              <div className="absolute inset-0 bg-orange-900/30 mix-blend-overlay pointer-events-none" />
         )}
 
@@ -373,9 +395,9 @@ export default function ProductDetailPage() {
         <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Gallery */}
           <div className="space-y-4">
-            <div className="aspect-[4/3]">{mockImage(selectedImage.kind)}</div>
+            <div className="aspect-[4/3]">{mockImage(selectedImage)}</div>
             <div className="grid grid-cols-4 gap-3">
-              {product.images.map((img) => {
+              {product.images.map((img: any) => {
                 const active = img.id === selectedImage.id;
                 return (
                   <button
@@ -390,7 +412,7 @@ export default function ProductDetailPage() {
                     <div className="w-full h-full p-2">
                       <div className="w-full h-full rounded-xl overflow-hidden relative">
                          <img 
-                            src="https://images.unsplash.com/photo-1627464096076-2d11979b9e59?q=80&w=800&auto=format&fit=crop" 
+                            src={img.url} 
                             alt={img.label}
                             className="w-full h-full object-cover"
                           />
