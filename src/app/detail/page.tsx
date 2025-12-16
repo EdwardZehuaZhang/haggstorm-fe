@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { getProductById, createCart } from "@/lib/shopify";
 
 // --- Particle System (same vibe as home) ---
 const ParticleSystem = () => {
@@ -169,78 +170,124 @@ const StarRow = ({ value = 5 }: { value?: number }) => (
 
 // --- Product Detail Page ---
 export default function ProductDetailPage() {
+  const [shopifyProduct, setShopifyProduct] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+
+  useEffect(() => {
+    async function fetchProduct() {
+      try {
+        // Use the global ID format for Shopify
+        const productId = "gid://shopify/Product/7471855861863";
+        const productData = await getProductById(productId);
+        setShopifyProduct(productData);
+      } catch (error) {
+        console.error("Failed to fetch product:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchProduct();
+  }, []);
+
+  const handleAddToCart = async () => {
+    if (!shopifyProduct) return;
+    
+    setIsAddingToCart(true);
+    try {
+      // Get the first variant ID (assuming simple product)
+      const variantId = shopifyProduct.variants.edges[0].node.id;
+      const cart = await createCart(variantId, qty);
+      
+      if (cart && cart.checkoutUrl) {
+        window.location.href = cart.checkoutUrl;
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("Failed to add to cart. Please try again.");
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
   // Based on the homepage vibe: pixel font headings, chill particles, orange highlight.
   const product = useMemo(
-    () => ({
-      name: "Sleeping Fox Light",
-      tagline: "Illuminate your biome with the coziest mob in the game.",
-      price: 29.99,
-      compareAt: 49.99,
-      rating: 5,
-      reviewCount: 342,
-      bullets: [
-        "Modeled exactly after the in-game fox texture (1:1 scale)",
-        "Wireless power via 3x AA batteries for untethered placement",
-        "Soft warm orange glow perfect for night mode",
-        "Tap to turn on/off - simple and satisfying",
-      ],
-      highlights: [
-        { k: "Material", v: "Durable ABS" },
-        { k: "Power", v: "3x AA Battery" },
-        { k: "Light Source", v: "Warm LED" },
-        { k: "Dimensions", v: "16cm Width" },
-      ],
-      images: [
-        { id: "img1", label: "Front View", kind: "fox-front" },
-        { id: "img2", label: "Side Glow", kind: "fox-side" },
-        { id: "img3", label: "In Scene", kind: "fox-scene" },
-        { id: "img4", label: "Night Mode", kind: "fox-night" },
-      ],
-      specs: [
-        { k: "In the Box", v: "1x Sleeping Fox Light, User Manual" },
-        { k: "Battery Life", v: "Up to 120 hours of continuous use" },
-        { k: "Weight", v: "250g (without batteries)" },
-        { k: "Safety", v: "Child-safe materials, cool-to-touch LED" },
-        { k: "Warranty", v: "1-year limited warranty" },
-      ],
-      faqs: [
-        {
-          q: "Does it make fox sounds?",
-          a: "No, this little guy is sleeping peacefully! It's purely a light, so it won't wake you up with squeaks or screeches.",
-        },
-        {
-          q: "Are batteries included?",
-          a: "Batteries are not included in the standard box. You'll need 3 standard AA batteries to power it up.",
-        },
-        {
-          q: "Is it bright enough to read by?",
-          a: "It's designed as an ambient mood light or nightlight. It provides a cozy orange glow, but we recommend a main lamp for serious reading.",
-        },
-      ],
-      reviews: [
-        {
-          name: "Steve",
-          stars: 5,
-          text: "The cutest mob in my inventory. It looks exactly like the game, and the glow is super comforting.",
-        },
-        {
-          name: "Alex",
-          stars: 5,
-          text: "Perfect for my gaming setup. I love that there are no wires, so I can put it on my shelf anywhere.",
-        },
-        {
-          name: "Builder123",
-          stars: 4,
-          text: "Great quality plastic, feels sturdy. Wish it had a USB-C option, but batteries last a long time.",
-        },
-      ],
-      related: [
-        { name: "Diamond Ore Lamp", price: 24.99, tint: "blue" },
-        { name: "Creeper Mug", price: 14.99, tint: "green" },
-        { name: "Torch Wall Mount", price: 19.99, tint: "orange" },
-      ],
-    }),
-    []
+    () => {
+      // If Shopify data is loaded, use it; otherwise fallback to static data
+      const sPrice = shopifyProduct?.variants?.edges[0]?.node?.price?.amount;
+      const sCompare = shopifyProduct?.variants?.edges[0]?.node?.compareAtPrice?.amount;
+      
+      return {
+        name: shopifyProduct?.title || "Sleeping Fox Light",
+        tagline: shopifyProduct?.description || "Illuminate your biome with the coziest mob in the game.",
+        price: sPrice ? parseFloat(sPrice) : 29.99,
+        compareAt: sCompare ? parseFloat(sCompare) : 49.99,
+        rating: 5,
+        reviewCount: 342,
+        bullets: [
+          "Modeled exactly after the in-game fox texture (1:1 scale)",
+          "Wireless power via 3x AA batteries for untethered placement",
+          "Soft warm orange glow perfect for night mode",
+          "Tap to turn on/off - simple and satisfying",
+        ],
+        highlights: [
+          { k: "Material", v: "Durable ABS" },
+          { k: "Power", v: "3x AA Battery" },
+          { k: "Light Source", v: "Warm LED" },
+          { k: "Dimensions", v: "16cm Width" },
+        ],
+        images: [
+          { id: "img1", label: "Front View", kind: "fox-front" },
+          { id: "img2", label: "Side Glow", kind: "fox-side" },
+          { id: "img3", label: "In Scene", kind: "fox-scene" },
+          { id: "img4", label: "Night Mode", kind: "fox-night" },
+        ],
+        specs: [
+          { k: "In the Box", v: "1x Sleeping Fox Light, User Manual" },
+          { k: "Battery Life", v: "Up to 120 hours of continuous use" },
+          { k: "Weight", v: "250g (without batteries)" },
+          { k: "Safety", v: "Child-safe materials, cool-to-touch LED" },
+          { k: "Warranty", v: "1-year limited warranty" },
+        ],
+        faqs: [
+          {
+            q: "Does it make fox sounds?",
+            a: "No, this little guy is sleeping peacefully! It's purely a light, so it won't wake you up with squeaks or screeches.",
+          },
+          {
+            q: "Are batteries included?",
+            a: "Batteries are not included in the standard box. You'll need 3 standard AA batteries to power it up.",
+          },
+          {
+            q: "Is it bright enough to read by?",
+            a: "It's designed as an ambient mood light or nightlight. It provides a cozy orange glow, but we recommend a main lamp for serious reading.",
+          },
+        ],
+        reviews: [
+          {
+            name: "Steve",
+            stars: 5,
+            text: "The cutest mob in my inventory. It looks exactly like the game, and the glow is super comforting.",
+          },
+          {
+            name: "Alex",
+            stars: 5,
+            text: "Perfect for my gaming setup. I love that there are no wires, so I can put it on my shelf anywhere.",
+          },
+          {
+            name: "Builder123",
+            stars: 4,
+            text: "Great quality plastic, feels sturdy. Wish it had a USB-C option, but batteries last a long time.",
+          },
+        ],
+        related: [
+          { name: "Diamond Ore Lamp", price: 24.99, tint: "blue" },
+          { name: "Creeper Mug", price: 14.99, tint: "green" },
+          { name: "Torch Wall Mount", price: 19.99, tint: "orange" },
+        ],
+      };
+    },
+    [shopifyProduct]
   );
 
   const [selectedImage, setSelectedImage] = useState(product.images[0]);
@@ -316,8 +363,8 @@ export default function ProductDetailPage() {
             <MCButton variant="ghost" onClick={() => window.location.href = '/'}>
               ← Home
             </MCButton>
-            <MCButton variant="dark" onClick={() => alert("Open cart drawer / checkout")}>
-              Cart (1)
+            <MCButton variant="dark" onClick={handleAddToCart} disabled={isAddingToCart}>
+              {isAddingToCart ? "..." : `Cart (${qty})`}
             </MCButton>
           </div>
         </div>
@@ -370,7 +417,7 @@ export default function ProductDetailPage() {
             </div>
 
             <h1 className="mt-5 font-pixel text-5xl text-white leading-none">
-              {product.name}
+              {isLoading ? "Loading..." : product.name}
             </h1>
             <p className="mt-3 text-gray-300">{product.tagline}</p>
 
@@ -425,9 +472,10 @@ export default function ProductDetailPage() {
 
               <MCButton
                 className="flex-1"
-                onClick={() => alert(`Added to cart: ${product.name} × ${qty}`)}
+                onClick={handleAddToCart}
+                disabled={isAddingToCart}
               >
-                Add to Cart
+                {isAddingToCart ? "Loading..." : "Buy Now"}
               </MCButton>
             </div>
 
