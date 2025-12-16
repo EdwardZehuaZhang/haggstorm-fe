@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from "react";
+import { Zap, Moon, Box } from "lucide-react";
 import { getProductById, createCart } from "@/lib/shopify";
 import ParticleSystem from "@/components/ParticleSystem";
 import Footer from "@/components/Footer";
@@ -14,10 +15,10 @@ const colorClasses: Record<string, string> = {
 
 const MCButton = ({ children, className = "", variant = "primary", ...props }: any) => {
   const base =
-    "mc-btn font-pixel text-xl px-5 py-3 rounded-none border-4 transition-all duration-200 select-none";
+    "text-2xl px-8 py-4 mc-btn rounded-none border-4 transition-transform active:scale-95 duration-200 select-none";
   const variants: Record<string, string> = {
     primary:
-      "bg-orange-500 text-black hover:bg-orange-400 border-orange-700 hover:-translate-y-0.5",
+      "bg-orange-500 hover:bg-orange-600 text-black border-orange-700",
     ghost:
       "bg-[#2a2a2a] text-white hover:bg-[#333333] border-[#1a1a1a] hover:-translate-y-0.5",
     dark:
@@ -391,7 +392,7 @@ export default function ProductDetailPage() {
                   min={1}
                   value={qty}
                   onChange={(e) => setQty(Math.max(1, Number(e.target.value || 1)))}
-                  className="w-16 text-center bg-transparent text-white outline-none font-pixel text-2xl"
+                  className="w-16 appearance-none h-10 text-center bg-transparent text-white outline-none font-pixel text-2xl"
                 />
                 <button
                   className="w-10 h-10 rounded-none bg-[#333333] hover:bg-[#444444] border-4 border-[#1a1a1a] text-white"
@@ -450,19 +451,19 @@ export default function ProductDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <InfoCard
               color="orange"
-              icon={<span className="font-pixel text-3xl">⚡</span>}
+              icon={<Zap className="w-8 h-8" />}
               title="Wireless Power"
               desc="Place it anywhere in your room. No redstone wiring required. 3x AA batteries."
             />
             <InfoCard
               color="blue"
-              icon={<span className="font-pixel text-3xl">☾</span>}
+              icon={<Moon className="w-8 h-8" />}
               title="Night Mode"
               desc="Emits a soft, warm orange glow perfect for late-night gaming sessions."
             />
             <InfoCard
               color="green"
-              icon={<span className="font-pixel text-3xl">▣</span>}
+              icon={<Box className="w-8 h-8" />}
               title="Authentic Detail"
               desc="Modeled exactly after the in-game fox texture. Every pixel counted."
             />
@@ -571,10 +572,10 @@ export default function ProductDetailPage() {
           </div>
         </Section>
 
-        {/* Footer */}
-        <div className="mt-14">
-          <Footer />
-        </div>
+      </div>
+
+      <div className="mt-14">
+        <Footer />
       </div>
     </div>
   );

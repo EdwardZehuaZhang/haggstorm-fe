@@ -24,7 +24,7 @@ import Footer from '@/components/Footer';
 export default function Home() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLightOn, setIsLightOn] = useState(false);
+  const [isLightOn, setIsLightOn] = useState(true);
 
   // Handle Scroll Effect for Navbar
   useEffect(() => {
